@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Integrating SwiftLint via SPM with Local Swift Packages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warning {
+            color: #c0392b;
+            background-color: #f9ebea;
+            padding: 10px;
+            border-left: 4px solid #c0392b;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Integrating SwiftLint via SPM with Local Swift Packages: A Practical Guide</h1>
+
+        <section>
+            <h2>Introduction</h2>
+            <p>SwiftLint is a powerful tool for enforcing Swift style and conventions. While integrating it via Swift Package Manager (SPM) is straightforward, challenges arise when projects include <strong>local Swift packages</strong>. This article outlines a practical approach to ensure SwiftLint works seamlessly across your entire project.</p>
+        </section>
+
+        <section>
+            <h2>1. Standard SwiftLint Integration via SPM</h2>
+            <p>For most projects:</p>
+            <pre><code>1. Create a <strong>.swiftlint.yml</strong> in your project’s root.
+2. Enable the <strong>SwiftLintBuildToolPlugin</strong> in Xcode or the main Package.swift.</code></pre>
+        </section>
+
+        <section>
+            <h2>2. The Challenge with Local Swift Packages</h2>
+            <p>Local packages do NOT inherit SwiftLint rules by default. The standard setup will ignore them.</p>
+        </section>
+
+        <section>
+            <h2>3. Correct Approach for Local Packages</h2>
+            <h3>Step 1: Add a Run Script Phase</h3>
+            <pre><code class="language-bash"># Find the correct macOS SwiftLint binary
+SWIFTLINT_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*/swiftlint-*-macos/bin/swiftlint" | head -n 1)
+
+if [ -x "$SWIFTLINT_PATH" ]; then
+    echo "Using SwiftLint from $SWIFTLINT_PATH"
+    "$SWIFTLINT_PATH" lint --config "$SRCROOT/.swiftlint.yml"
+else
+    echo "warning: SwiftLint not found. Ensure the SwiftLint package is built correctly in Xcode."
+fi</code></pre>
+
+            <h3>Step 2: Disable User Script Sandboxing</h3>
+            <p>In Xcode: <code>File > Project Settings > Build Settings</code> → Set <strong>User Script Sandboxing</strong> to <strong>NO</strong>.</p>
+        </section>
+
+        <section>
+            <h2>4. Common Pitfalls and Solutions</h2>
+            <div class="warning">
+                <h3>Pitfall 1: Modifying Package Manifests</h3>
+                <p>Avoid adding SwiftLint to local packages' <code>Package.swift</code>:</p>
+                <pre><code class="language-swift">// ❌ WRONG
+.package(url: "https://github.com/realm/SwiftLint", from: "&lt;version&gt;"),
+.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLint")
+OR
+.package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "&lt;version&gt;")
+.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins"),</code></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>5. Conclusion</h2>
+            <p><strong>Key Takeaways:</strong></p>
+            <ul>
+                <li>Centralize configuration with a root <code>.swiftlint.yml</code></li>
+                <li>Use Run Script Phases for global linting</li>
+                <li>Never modify local package manifests</li>
+            </ul>
+        </section>
+    </article>
+</body>
+</html>

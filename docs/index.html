@@ -2,100 +2,256 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Integrating SwiftLint via SPM with Local Swift Packages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diptiranjan Rout - Application Developer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --light-bg: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
             line-height: 1.6;
-            max-width: 800px;
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        h1, h2, h3 {
-            color: #2c3e50;
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding: 4rem 0;
+            background: var(--primary-color);
+            color: white;
         }
-        code {
-            background-color: #f4f4f4;
-            padding: 2px 4px;
-            border-radius: 4px;
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
         }
-        pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow-x: auto;
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
         }
-        .warning {
-            color: #c0392b;
-            background-color: #f9ebea;
-            padding: 10px;
-            border-left: 4px solid #c0392b;
-            margin: 10px 0;
+
+        /* About Section */
+        .about {
+            padding: 3rem 0;
+            background: var(--light-bg);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Links Section */
+        .links {
+            padding: 3rem 0;
+        }
+
+        .thumbnail {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            height: 200px;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .thumbnail:hover img {
+            transform: scale(1.1);
+        }
+
+        .thumbnail-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+    <style>
+        /* Add this contact icons CSS */
+        .contact-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .contact-icons a {
+            color: white !important;
+            font-size: 1.5rem;
+            transition: opacity 0.3s ease;
+            text-decoration: none;
+        }
+
+        .contact-icons a:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <article>
-        <h1>Integrating SwiftLint via SPM with Local Swift Packages: A Practical Guide</h1>
+    <header class="header">
+        <div class="container">
+            <h1>Diptiranjan Rout</h1>
+            <p>Apple Application Developer (iOS, tvOS etc) | Flutter Developer</p>
+        </div>
+    </header>
 
-        <section>
-            <h2>Introduction</h2>
-            <p>SwiftLint is a powerful tool for enforcing Swift style and conventions. While integrating it via Swift Package Manager (SPM) is straightforward, challenges arise when projects include <strong>local Swift packages</strong>. This article outlines a practical approach to ensure SwiftLint works seamlessly across your entire project.</p>
-        </section>
-
-        <section>
-            <h2>1. Standard SwiftLint Integration via SPM</h2>
-            <p>For most projects:</p>
-            <pre><code>1. Create a <strong>.swiftlint.yml</strong> in your project’s root.
-2. Enable the <strong>SwiftLintBuildToolPlugin</strong> in Xcode or the main Package.swift.</code></pre>
-        </section>
-
-        <section>
-            <h2>2. The Challenge with Local Swift Packages</h2>
-            <p>Local packages do NOT inherit SwiftLint rules by default. The standard setup will ignore them.</p>
-        </section>
-
-        <section>
-            <h2>3. Correct Approach for Local Packages</h2>
-            <h3>Step 1: Add a Run Script Phase</h3>
-            <pre><code class="language-bash"># Find the correct macOS SwiftLint binary
-SWIFTLINT_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*/swiftlint-*-macos/bin/swiftlint" | head -n 1)
-
-if [ -x "$SWIFTLINT_PATH" ]; then
-    echo "Using SwiftLint from $SWIFTLINT_PATH"
-    "$SWIFTLINT_PATH" lint --config "$SRCROOT/.swiftlint.yml"
-else
-    echo "warning: SwiftLint not found. Ensure the SwiftLint package is built correctly in Xcode."
-fi</code></pre>
-
-            <h3>Step 2: Disable User Script Sandboxing</h3>
-            <p>In Xcode: <code>File > Project Settings > Build Settings</code> → Set <strong>User Script Sandboxing</strong> to <strong>NO</strong>.</p>
-        </section>
-
-        <section>
-            <h2>4. Common Pitfalls and Solutions</h2>
-            <div class="warning">
-                <h3>Pitfall 1: Modifying Package Manifests</h3>
-                <p>Avoid adding SwiftLint to local packages' <code>Package.swift</code>:</p>
-                <pre><code class="language-swift">// ❌ WRONG
-.package(url: "https://github.com/realm/SwiftLint", from: "&lt;version&gt;"),
-.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLint")
-OR
-.package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "&lt;version&gt;")
-.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins"),</code></pre>
+    <section class="about">
+        <div class="container">
+            <h2>About Me</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Experience</h3>
+                    <ul style="margin-top: 1rem;">
+                        <li>9+ years in iOS App development</li>
+                        <li>3+ months in Flutter development</li>
+                        <li>iOS Developer @Robosoft Technologies
+(Jan 2021 - Present)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Skills</h3>
+                    <ul style="margin-top: 1rem;">
+                        <li>Apple App Development (Swift, SwiftUI & Objective-C)</li>
+                        <li>XCode, Android Studio</li>
+                        <li>Hybrid & Android Development (Flutter)</li>
+                        <li>AI Tools: Github Copilot, Cursor AI, ChatGPT, DeepSeek</li>
+                    </ul>
+                </div>
             </div>
-        </section>
+        </div>
+        
+    </section>
+    
 
-        <section>
-            <h2>5. Conclusion</h2>
-            <p><strong>Key Takeaways:</strong></p>
-            <ul>
-                <li>Centralize configuration with a root <code>.swiftlint.yml</code></li>
-                <li>Use Run Script Phases for global linting</li>
-                <li>Never modify local package manifests</li>
-            </ul>
-        </section>
-    </article>
+    <section class="links">
+        <div class="container">
+            <h2>Professional Resources</h2>
+            <div class="grid" style="margin-top: 2rem;">
+                <a href="resume.pdf" download class="card">
+                    <div class="thumbnail">
+                        <img src="https://github.com/DiptiRout/profile/blob/my-profile/resources/Images/resumeImage.png" alt="Resume">
+                        <div class="thumbnail-content">
+                            <h3>Download CV</h3>
+                            <i class="fas fa-download"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="articles.html" class="card">
+                    <div class="thumbnail">
+                        <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643" alt="Articles">
+                        <div class="thumbnail-content">
+                            <h3>Published Articles</h3>
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="www.linkedin.com/in/diptiranjan-rout-ios-dev" target="_blank" class="card">
+                    <div class="thumbnail">
+                        <img src="https://images.unsplash.com/photo-1611944212129-29977ae1398c" alt="LinkedIn">
+                        <div class="thumbnail-content">
+                            <h3>LinkedIn Profile</h3>
+                            <i class="fab fa-linkedin"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 Diptiranjan Rout. All rights reserved.</p>
+            <div class="contact-icons">
+                <!-- Gmail -->
+                <a href="mailto:diptiranjan.rout.ios@gmail.com" title="Gmail">
+                    <i class="fab fa-google"></i>
+                </a>
+                
+                <!-- Outlook/Hotmail -->
+                <a href="mailto:your@hotmail.com" title="Hotmail">
+                    <i class="fab fa-microsoft"></i>
+                </a>
+                
+                <!-- Yahoo -->
+                <a href="mailto:your@yahoo.com" title="Yahoo">
+                    <i class="fab fa-yahoo"></i>
+                </a>
+                
+                <!-- Mobile -->
+                <a href="tel:+1234567890" title="Mobile">
+                    <i class="fas fa-phone"></i>
+                </a>
+                
+                <!-- WhatsApp -->
+                <a href="https://wa.me/1234567890" target="_blank" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
